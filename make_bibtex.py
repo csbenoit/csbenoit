@@ -2,14 +2,12 @@ import numpy as np
 import sys
 import os
 import re
+from paper_dictionary import paper_dict
 
 
-with open("authors_per_paper.txt") as authFile:
-    authors_per_paper = authFile.readlines()
-
-
-for paper in authors_per_paper:
-    authors = paper.split(",")
+for paper_name in paper_dict.keys():
+    paper = paper_dict[paper_name]
+    authors = paper['authors'].split(",")
     lasts = [name.split(" ")[-1] for name in authors]
     firsts = [list(filter(None, name.split(" ")[:-1])) for name in authors]
     for i in range(len(firsts)):
@@ -19,37 +17,18 @@ for paper in authors_per_paper:
 
     comb_firsts = [" ".join(name) for name in firsts]
 
-    new = ["{"+l+"}, "+f for l,f in zip(lasts,comb_firsts)]
+    authors_new = ["{"+l+"}, "+f for l,f in zip(lasts,comb_firsts)]
 
-    print(new)
+    full_list = " and ".join(authors_new)
 
-
-
-
-'''
-with open("project_dirs.txt") as dirFile:
-    for projid, line in enumerate(dirFile):
-        stage_37_log = line[:-1]+"weblog/stage37/casapy.log"
-
-        lookup = "tclean::::casa	tclean( vis="
-
-        num_lock=None
-        with open(stage_37_log) as logFile:
-            for num, logline in enumerate(logFile, 1):
-                if lookup in logline:
-                    print('found at line:', num)
-                    command_master = logline[40:]
-                    break
-
-        outfile = "tclean_commands_" + projects[projid][:-1] + ".py"
-        if not os.path.exists(projects[projid][:-1]):
-            os.makedirs(projects[projid][:-1])
-        with open(outfile, "w") as f:
-            print('casalog.filter("INFO3")', file=f)
-            print("", file=f)
-            command = command_master
-            command = command.replace("/lustre/naasc/sciops/comm/cbrogan/pipeline/root/", "/lustre/naasc/sciops/comm/cbrogan/pipeline/root/Benchmark_2020/")
-            command = command.replace("imagename='", "imagename='"+projects[projid][:-1]+"/")
-            command = command.replace("iter0',", "iter0.pcwdF',")
-            command = command.replace("parallel=False", "parallel=True")
-'''
+    outfile = paper_name + "_bibtex.bib"
+    with open(outfile, "w") as f:
+        print("@ARTICLE{2021_"+paper_name+"_in_press,", file=f)
+        print("       author = {"+full_list+"},", file=f)
+        print('       title = "{'+paper['title']+'}",', file=f)
+        print("       journal = {\\apjs},", file=f)
+        print("       year = 2021,", file=f)
+        print("       volume = {in press},", file=f)
+        print("       archivePrefix = {arXiv},", file=f)
+        print("       eprint = {2006.16187},", file=f)
+        print("}", file=f)
